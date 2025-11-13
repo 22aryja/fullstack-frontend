@@ -1,15 +1,12 @@
-import GitHub from './components/GitHub';
-import Weather from './components/Weather';
-import Provider from './providers/Provider';
+import { Outlet } from 'react-router';
+import Header from './components/layout/Header';
 
 function App() {
     return (
-        <Provider>
-            <main className="w-screen h-screen">
-                <Weather />
-                <GitHub />
-            </main>
-        </Provider>
+        <main className="flex flex-col w-screen h-screen bg-neutral-800">
+            <Header />
+            <Outlet />
+        </main>
     );
 }
 
