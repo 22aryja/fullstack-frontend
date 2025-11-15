@@ -1,7 +1,5 @@
 import App from '@/App';
-import ShopPage from '@/components/shop/ShopPage';
-import TablePage from '@/components/table/TablePage';
-import WelcomePage from '@/components/welcome/WelcomePage';
+import UsersPage from '@/components/users/UsersPage';
 import { BrowserRouter, Route, Routes } from 'react-router';
 
 const AppRoutes = () => {
@@ -9,9 +7,7 @@ const AppRoutes = () => {
         <BrowserRouter>
             <Routes>
                 <Route element={<App />}>
-                    <Route path="/" element={<WelcomePage />} />
-                    <Route path="/shop" element={<ShopPage />} />
-                    <Route path="/grid" element={<TablePage />} />
+                    <Route path="/" element={<UsersPage />} />
                 </Route>
             </Routes>
         </BrowserRouter>
