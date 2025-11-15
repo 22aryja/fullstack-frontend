@@ -21,7 +21,6 @@ export const user = {
     createUser: async (newUser: Omit<User, 'id'>): Promise<User> => {
         try {
             const response: User = await axiosInstance.post('/api/users', {
-                id: 0,
                 ...newUser,
             });
             return response;
@@ -38,7 +37,6 @@ export const user = {
     }): Promise<User> => {
         try {
             const response: User = await axiosInstance.put(`/api/users/${id}`, {
-                id: 0,
                 ...updatedUser,
             });
             return response;
