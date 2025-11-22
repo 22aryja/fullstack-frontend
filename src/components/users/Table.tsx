@@ -1,14 +1,8 @@
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import { useMemo, useState, type FC } from 'react';
 import type { User } from '@/types/user';
 import Button from '@mui/material/Button';
 import Popover from '@mui/material/Popover';
+import { DataGrid, type GridColDef } from '@mui/x-data-grid';
+import { type FC, useState } from 'react';
 import UserForm from './UserForm';
 
 interface Props {
@@ -19,9 +13,7 @@ interface Props {
 }
 
 const UserTable: FC<Props> = ({ rows, onAdd, onEdit, onDelete }) => {
-    const [selectedUser, setSelectedUser] = useState<User | undefined>(
-        undefined
-    );
+    const [selectedUser, setSelectedUser] = useState<User | undefined>();
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -33,94 +25,55 @@ const UserTable: FC<Props> = ({ rows, onAdd, onEdit, onDelete }) => {
         setSelectedUser(undefined);
     };
 
-    const open: boolean = useMemo((): boolean => Boolean(anchorEl), [anchorEl]);
+    const open = Boolean(anchorEl);
 
-    const handleAdd = (newUser: Omit<User, 'id'>, isEdited: boolean) => {
+    const handleSubmit = (newUser: Omit<User, 'id'>, isEdited: boolean) => {
         if (isEdited) {
             onEdit({ id: selectedUser!.id, ...newUser });
         } else {
             onAdd(newUser);
         }
-
         handleClose();
     };
 
     const handleEdit =
-        (user: User) => (event: React.MouseEvent<HTMLButtonElement>) => {
-            handleClick(event);
+        (user: User) =>
+        (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
             setSelectedUser(user);
+            setAnchorEl(event.currentTarget);
         };
 
-    if (rows.length === 0) {
-        return (
-            <section className="w-full h-full bg-gray-50 flex flex-col justify-center items-center">
-                <h1>No users</h1>
-                <Button onClick={handleClick}>ADD</Button>
-                <Popover
-                    open={open}
-                    anchorEl={anchorEl}
-                    onClose={handleClose}
-                    anchorOrigin={{
-                        vertical: 'bottom',
-                        horizontal: 'center',
-                    }}
-                    transformOrigin={{
-                        vertical: 'top',
-                        horizontal: 'center',
-                    }}
-                >
-                    <UserForm onSubmit={handleAdd} />
-                </Popover>
-            </section>
-        );
-    }
+    const columns: GridColDef[] = [
+        { field: 'id', headerName: 'ID', width: 90 },
+        { field: 'name', headerName: 'Name', width: 150 },
+        { field: 'surname', headerName: 'Surname', width: 200 },
+        { field: 'age', headerName: 'Age', width: 90 },
+        {
+            field: 'actions',
+            headerName: 'Actions',
+            width: 200,
+            sortable: false,
+            filterable: false,
+            disableColumnMenu: true,
+            renderCell: (params) => (
+                <>
+                    <Button onClick={handleEdit(params.row)}>EDIT</Button>
+                    <Button onClick={() => onDelete(params.row)}>DELETE</Button>
+                </>
+            ),
+        },
+    ];
 
     return (
-        <TableContainer component={Paper}>
-            <Table aria-label="simple table">
-                <TableHead>
-                    <TableRow>
-                        {Object.keys(rows[0]).map((col: string) => (
-                            <TableCell key={col}>{col}</TableCell>
-                        ))}
-                        <TableCell align="center">
-                            <Button onClick={handleClick}>ADD</Button>
-                        </TableCell>
-                    </TableRow>
-                </TableHead>
-                <TableBody>
-                    {rows.map((row: User) => (
-                        <TableRow
-                            key={row.name}
-                            sx={{
-                                '&:last-child td, &:last-child th': {
-                                    border: 0,
-                                },
-                            }}
-                        >
-                            {Object.keys(row).map((item: string) => (
-                                <TableCell
-                                    key={item}
-                                    component="th"
-                                    scope="row"
-                                >
-                                    {row[item as keyof User]}
-                                </TableCell>
-                            ))}
-                            <TableCell
-                                component="th"
-                                scope="row"
-                                align="center"
-                            >
-                                <Button onClick={handleEdit(row)}>EDIT</Button>
-                                <Button onClick={() => onDelete(row)}>
-                                    DELETE
-                                </Button>
-                            </TableCell>
-                        </TableRow>
-                    ))}
-                </TableBody>
-            </Table>
+        <div className="w-full h-full">
+            <Button onClick={handleClick}>ADD USER</Button>
+
+            <DataGrid
+                rows={rows}
+                columns={columns}
+                showToolbar
+                disableRowSelectionOnClick
+            />
 
             <Popover
                 open={open}
@@ -130,14 +83,10 @@ const UserTable: FC<Props> = ({ rows, onAdd, onEdit, onDelete }) => {
                     vertical: 'bottom',
                     horizontal: 'center',
                 }}
-                transformOrigin={{
-                    vertical: 'top',
-                    horizontal: 'center',
-                }}
             >
-                <UserForm onSubmit={handleAdd} user={selectedUser} />
+                <UserForm onSubmit={handleSubmit} user={selectedUser} />
             </Popover>
-        </TableContainer>
+        </div>
     );
 };
 
